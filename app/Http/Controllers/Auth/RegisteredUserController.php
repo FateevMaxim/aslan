@@ -37,6 +37,7 @@ class RegisteredUserController extends Controller
             'checkbox' => ['required'],
             'surname' => ['required', 'string', 'max:255'],
             'city' => ['required', 'string', 'max:255'],
+            'code' => ['required', 'string', 'max:255'],
             'login' => ['required', 'string', 'max:16', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
@@ -44,12 +45,22 @@ class RegisteredUserController extends Controller
         if (Str::contains($request->login, '_')){
             return redirect()->back()->with('error', 'Неверный номер, пожалуйста, перепроверьте');
         }
+        $input = $request->code;
+
+        $pattern = "/Aslan-\d{1,4}$/";
+
+        $isSubstringPresent = preg_match($pattern, $input);
+
+        if (!$isSubstringPresent){
+            return redirect()->back()->with('error', 'Неверный код, пожалуйста, перепроверьте');
+        }
 
 
         $user = User::create([
             'name' => $request->name,
             'surname' => $request->surname,
             'city' => $request->city,
+            'code' => $request->code,
             'login' => $request->login,
             'password' => $request->password,
         ]);
